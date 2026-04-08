@@ -53,6 +53,36 @@ body {
   font-size: 15px;
 }
 
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 6px;
+  background: none;
+  border: none;
+  z-index: 1001;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background: #00ffcc;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(10px, 10px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
 .navbar a:hover {
   color: #00ffcc;
 }
@@ -62,6 +92,86 @@ body {
   border-bottom: 2px solid #00ffcc;
   padding-bottom: 3px;
   text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+}
+
+/* MOBILE MENU */
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background: rgba(15, 32, 39, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.1);
+  z-index: 1000;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-menu.active {
+  display: flex;
+}
+
+.mobile-menu a {
+  color: white;
+  text-decoration: none;
+  padding: 15px 30px;
+  border-bottom: 1px solid rgba(0, 255, 204, 0.1);
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.mobile-menu a:hover {
+  background: rgba(0, 255, 204, 0.1);
+  color: #00ffcc;
+  padding-left: 35px;
+}
+
+.mobile-menu a.active {
+  background: rgba(0, 255, 204, 0.15);
+  color: #00ffcc;
+  border-left: 3px solid #00ffcc;
+  padding-left: 27px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* HERO */
@@ -380,6 +490,14 @@ p {
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .navbar > div:last-child {
+    display: none;
+  }
+
   h1 {
     font-size: 40px;
   }
@@ -418,6 +536,24 @@ p {
     <a href="#contact" class="nav-link">Contact</a>
     <a href="https://carrotxofficial.github.io/carrotvpn-privacy/" target="_blank">Privacy</a>
   </div>
+  <button class="hamburger" id="hamburger">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</div>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home" class="mobile-link active">Home</a>
+  <a href="#features" class="mobile-link">Features</a>
+  <a href="#about" class="mobile-link">About</a>
+  <a href="#gallery" class="mobile-link">App</a>
+  <a href="#contact" class="mobile-link">Contact</a>
+  <a href="https://carrotxofficial.github.io/carrotvpn-privacy/" target="_blank">Privacy</a>
 </div>
 
 <!-- HERO -->
@@ -555,7 +691,53 @@ document.addEventListener('DOMContentLoaded', () => {
   // Observe all sections
   sections.forEach(section => navObserver.observe(section));
 
-  // Handle smooth scroll for nav links
+  // Handle mobile menu toggle
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const mobileLinks = document.querySelectorAll('.mobile-link');
+
+  function closeMenu() {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+    menuOverlay.classList.remove('active');
+  }
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('active');
+    menuOverlay.classList.toggle('active');
+  });
+
+  // Close menu when clicking overlay
+  menuOverlay.addEventListener('click', closeMenu);
+
+  // Close menu and update active link when clicking a mobile link
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (link.getAttribute('href').startsWith('#')) {
+        e.preventDefault();
+        
+        // Update active state for mobile links
+        mobileLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        
+        // Close menu
+        closeMenu();
+        
+        // Smooth scroll
+        const targetId = link.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        closeMenu();
+      }
+    });
+  });
+
+  // Handle smooth scroll for desktop nav links
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
