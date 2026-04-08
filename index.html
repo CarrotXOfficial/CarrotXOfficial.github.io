@@ -513,20 +513,28 @@ p {
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-  .hamburger {
-    display: flex;
+  .navbar {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 12px 20px;
   }
 
-  .navbar > div:last-child {
+  .navbar > div:first-child {
+    display: none;
+  }
+
+  .navbar > div:nth-child(2) {
     display: none !important;
+  }
+
+  .hamburger {
+    display: flex;
+    position: relative;
+    right: auto;
+    margin-left: auto;
   }
 
   h1 {
     font-size: 40px;
-  }
-
-  .navbar {
-    padding: 15px 20px;
   }
 
   .cards {
