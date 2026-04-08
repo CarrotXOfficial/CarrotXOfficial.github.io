@@ -30,6 +30,14 @@ body {
   border-bottom: 1px solid rgba(0, 255, 204, 0.1);
   z-index: 1000;
   box-sizing: border-box;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar.scrolled {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-bottom-color: rgba(0, 255, 204, 0.2);
 }
 
 .navbar > div:first-child {
@@ -37,12 +45,17 @@ body {
   font-weight: 700;
   letter-spacing: -0.5px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.navbar > div:last-child {
+.navbar > div:nth-child(2) {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  gap: 25px;
+  gap: 30px;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .navbar a {
@@ -61,6 +74,8 @@ body {
   background: none;
   border: none;
   z-index: 1001;
+  position: absolute;
+  right: 30px;
 }
 
 .hamburger span {
@@ -363,6 +378,17 @@ p {
   animation: fadeUp 0.8s ease forwards;
 }
 
+.section-fade {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.section-fade.visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 /* Background Glow Effects */
 .glow-1 {
   position: fixed;
@@ -495,7 +521,7 @@ p {
   }
 
   .navbar > div:last-child {
-    display: none;
+    display: none !important;
   }
 
   h1 {
@@ -563,7 +589,7 @@ p {
     <p>Secure • Fast • Private</p>
     <button class="btn">Download CarrotVPN (Coming Soon)</button>
     <p style="font-size:14px; opacity:0.7; margin-top: 20px;">
-      No logs • Secure connection • Trusted access
+      No logs • Encrypted connection • Secure access
     </p>
     <div style="margin-top: 30px;">
       <a href="https://carrotxofficial.github.io/carrotvpn-privacy/" target="_blank" class="privacy-link">
@@ -622,11 +648,11 @@ p {
 <div class="contact" id="contact">
   <h2>Get In Touch</h2>
   <p style="font-size: 18px; margin-bottom: 30px;">Have questions? We'd love to hear from you!</p>
-  <a href="mailto:www.carrotx@gmail.com" class="btn" style="text-decoration: none; display: inline-block;">
+  <a href="mailto:sultangoju@gmail.com?subject=CarrotX%20Inquiry" class="email-btn">
     📧 Contact Us
   </a>
   <p style="margin-top: 20px; font-size: 14px; color: rgba(255, 255, 255, 0.7);">
-    www.carrotx@gmail.com
+    sultangoju@gmail.com
   </p>
 </div>
 
@@ -635,7 +661,41 @@ p {
   © 2026 CarrotX | All Rights Reserved
 </div>
 
-<script>
+<script>// Navbar scroll effect
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // Section fade-in animations
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  });
+
+  // Apply fade animation to sections
+  const sections = document.querySelectorAll('.features, .about, .gallery, .contact');
+  sections.forEach(section => {
+    section.classList.add('section-fade');
+    sectionObserver.observe(section);
+  });
 // Intersection Observer for fade-in animations on scroll
 const fadeInObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -721,6 +781,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update active state for mobile links
         mobileLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
+        
+        // Update desktop nav links too
+        navLinks.forEach(l => l.classList.remove('active'));
+        const desktopLink = document.querySelector(`.nav-link[href="${link.getAttribute('href')}"]`);
+        if (desktopLink) {
+          desktopLink.classList.add('active');
+        }
         
         // Close menu
         closeMenu();
